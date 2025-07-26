@@ -1,0 +1,45 @@
+---
+title: "Human Psychology of Conservation: Naming Patterns"
+author: "Diego Ellis Soto"
+date: "2025-07-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+### Motivation
+
+This analysis explores how researchers name tracked animals by combining:
+
+Movebank metadata for animal movement studies
+
+U.S. baby-name frequencies (1880–2017) via the babynames package
+
+Key questions:
+
+What proportion of tracked individuals receive “human” names?
+
+How “creative” are the animal names (distance from common baby names)?
+
+Where geographically are human-named animals most common?
+
+Are there taxonomic biases (mammals vs. reptiles vs. others)?
+
+
+```{r packs, echo=FALSE}
+required_pkgs <- c(
+  "move","dplyr","purrr","stringr","readr","sf",
+  "rnaturalearth","rnaturalearthdata","babynames",
+  "stringdist","ggplot2","wordcloud","tidyr","rgbif","ggrepel"
+)
+install.packages(setdiff(required_pkgs, installed.packages()[,"Package"]),
+                 repos="https://cran.rstudio.com")
+lapply(required_pkgs, library, character.only=TRUE)
+```
+
