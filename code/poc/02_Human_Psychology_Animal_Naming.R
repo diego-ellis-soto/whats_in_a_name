@@ -1,3 +1,4 @@
+# Galapagos not recognized as ecuador
 
 # ---
 # TITLE: Human Psychology of Conservation: Naming Patterns
@@ -94,7 +95,7 @@ write_csv(all_animals, "animal_metadata_full.csv")
 prop_df <- all_animals %>% count(is_human_name) %>% mutate(prop = n / sum(n))
 print(prop_df)
 p1 <- ggplot(prop_df, aes(x = is_human_name, y = prop, fill = is_human_name)) +
-  geom_col() +
+  geom_col() + theme_classic()+
   labs(title="Proportion Human-Named", x="Human Name?", y="Proportion")
 ggsave("outdir/prop_human_named.png", p1, width=6, height=4)
 
@@ -103,7 +104,7 @@ p2 <- all_animals %>%
   arrange(desc(total_births)) %>%
   slice_head(n=10) %>%
   ggplot(aes(reorder(local_identifier, total_births), total_births)) +
-  geom_col(fill="steelblue") + coord_flip() +
+  geom_col(fill="steelblue") + coord_flip() +theme_classic()+
   labs(title="Top 10 Names by Locations", x="Name", y="Birth Count")
 ggsave("outdir/top10_by_locations.png", p2, width=6, height=4)
 
@@ -111,7 +112,7 @@ p3 <- all_animals %>%
   arrange(desc(creativity_score)) %>%
   slice_head(n=10) %>%
   ggplot(aes(reorder(local_identifier, creativity_score), creativity_score)) +
-  geom_col(fill="coral") + coord_flip() +
+  geom_col(fill="coral") + coord_flip() +theme_classic()+
   labs(title="Top 10 Creative Names", x="Name", y="Creativity Score")
 ggsave("outdir/top10_creativity.png", p3, width=6, height=4)
 
@@ -155,7 +156,7 @@ p4 <- all_animals %>%
   group_by(class) %>%
   summarize(prop=mean(is_human_name, na.rm=TRUE)) %>%
   ggplot(aes(reorder(class, prop), prop)) +
-  geom_col(fill="steelblue") + coord_flip() +
+  geom_col(fill="steelblue") + coord_flip() +theme_classic()+
   labs(title="Human-Named by Class", x="Class", y="Proportion")
 ggsave("outdir/prop_by_class.png", p4, width=6, height=4)
 
@@ -284,17 +285,53 @@ studies_lat <- df %>%
   summarise(n_studies = n_distinct(id))
 
 # ▶︎ Plotting function
+
+# plot_latitude <- function(data, yvar, title, ylab, filename) {
+#   p <- ggplot(data, aes(y = lat_bin, x = !!sym(yvar))) +
+#     geom_area(stat = "identity", fill = "steelblue", alpha = 0.6) +
+#     geom_line(color = "darkblue", size = 1) +
+#     labs(
+#       title = title,
+#       x = ylab,
+#       y = "Latitude"
+#     ) +
+#     theme_minimal() + ylim(-180,180)+
+#     theme(panel.grid.minor = element_blank())
+#   
+#   print(p)
+#   ggsave(paste0("outdir/", filename, ".png"), p, width = 6, height = 5)
+# }
+
+library(ggplot2)
+library(dplyr)
+
+# A flexible plotting function for latitude-based richness/abundance patterns
 plot_latitude <- function(data, yvar, title, ylab, filename) {
-  p <- ggplot(data, aes(x = !!sym(yvar), y = lat_bin)) +
-    geom_col(fill = "steelblue") +
-    labs(title = title, x = ylab, y = "Latitude") +
-    theme_minimal()
+  p <- ggplot(data, aes(y = lat_bin, x = !!sym(yvar))) +
+    geom_path(stat = "identity", color = "steelblue", linewidth = 1.2) +
+    geom_area(stat = "identity", fill = "steelblue", alpha = 0.3) +
+    scale_y_continuous(limits = c(-90, 90), expand = c(0, 0)) +
+    scale_x_continuous(expand = c(0, 0)) +
+    labs(
+      title = title,
+      x = ylab,
+      y = "Latitude (°)"
+    ) +
+    theme_minimal(base_size = 13) +
+    theme(
+      panel.grid.minor = element_blank(),
+      axis.title = element_text(face = "bold"),
+      plot.title = element_text(face = "bold", hjust = 0.5)
+    )
+  
   print(p)
-  ggsave(paste0("outdir/", filename, ".png"), p, width = 6, height = 5)
+  ggsave(paste0("outdir/", filename, ".png"), p, width = 6, height = 6, dpi = 300)
 }
 
 # ▶︎ Generate and save all plots
-plot_latitude(species_lat, "n_species", "Species Richness Across Latitude", "Number of Species", "species_by_lat")
-plot_latitude(family_lat, "n_families", "Family Richness Across Latitude", "Number of Families", "families_by_lat")
-plot_latitude(individuals_lat, "n_individuals", "Tracked Individuals Across Latitude", "Number of Individuals", "individuals_by_lat")
-plot_latitude(studies_lat, "n_studies", "Study Counts Across Latitude", "Number of Studies", "studies_by_lat")
+plot_latitude(species_lat, "n_species", "Species Richness by Latitude", "Species", "lat_species")
+plot_latitude(family_lat, "n_families", "Family Richness by Latitude", "Families", "lat_families")
+plot_latitude(individuals_lat, "n_individuals", "Tracked Individuals by Latitude", "Individuals", "lat_individuals")
+plot_latitude(studies_lat, "n_studies", "Study Counts by Latitude", "Studies", "lat_studies")
+
+
