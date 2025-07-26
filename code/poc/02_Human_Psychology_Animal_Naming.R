@@ -149,3 +149,39 @@ p4 <- all_animals %>%
   geom_col(fill="steelblue") + coord_flip() +
   labs(title="Human-Named by Class", x="Class", y="Proportion")
 ggsave("outdir/prop_by_class.png", p4, width=6, height=4)
+
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+all_studies <- getMovebank(entity_type = "study", login = login) %>%
+  drop_na(main_location_lat, main_location_long) %>%
+  filter(is_test == 'false', study_type == 'research',
+         i_have_download_access =='true') %>%
+  filter(!grepl('tmp', name))
+
+
+downloadable_studies_sf <- st_as_sf(all_studies,
+                                    coords = c("main_location_long", "main_location_lat"),
+                                    crs = 4326
+)
+
+# ----------------------------
+# 4. PLOT
+# ----------------------------
+
+p4 <- ggplot() +
+  geom_sf(data = world, fill = "gray90", color = "gray50", size = 0.25) +
+  geom_sf(data = downloadable_studies_sf, color = "darkred", size = 1, shape = 21, fill = "black") +
+  theme_minimal() +
+  labs(
+    title = "Movebank Research Studies with Download Access",
+    subtitle = "Each point is a study you can download",
+    x = NULL, y = NULL
+  ) +
+  theme(
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+ggsave("outdir/Public_movement_data.png", p4, width=6, height=4)
