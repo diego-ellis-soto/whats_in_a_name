@@ -132,6 +132,7 @@ map_plot <- ggplot(left_join(world, country_df, by=c("name"="country")), aes(fil
 ggsave("outdir/map_human_named.png", map_plot, width=6, height=4)
 
 # ▶︎ 7. TAXONOMIC CLASSIFICATION & VISUALIZATION
+
 get_taxonomic_class <- function(sci_name) {
   res <- tryCatch(name_backbone(name=sci_name), error=function(e) NULL)
   if (is.null(res) || !"class" %in% names(res) || is.na(res$class)) return(NA_character_)
