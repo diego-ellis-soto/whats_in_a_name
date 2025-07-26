@@ -40,6 +40,9 @@ login <- movebankLogin(username = "XXX", password = "XXX")
 
 ![Studies with public data](outdir/lat_individuals.png)
 
+![Animals with name by class (public data)](outdir/prop_by_class.png)
+
+
 # Future work/next steps::
 Probability of names by country: https://github.com/Kyubyong/name2nat
 Names by country dataset https://github.com/sigpwned/popular-names-by-country-dataset
