@@ -196,34 +196,6 @@ p4 <- ggplot() +
 
 ggsave("outdir/Public_movement_data.png", p4, width=6, height=4)
 
-
-
-# Next steps:
-
-
-# Undergraduate work: 
-# Site of baby names python:
-# Accept terms and agreements
-# Taxonomy
-# Look at author name responsible and country of origin
-# 
-# Taxonomic Done
-# Accept Manually all those studies
-# Add matrix of names and their countries from python global
-# 
-# Do some plots of language to language based on country -> 
-# Global map of individuals per grid cell of this movebank study
-# Add Elton Traits
-# global plot of country to country
-# gloal plot of GDP from country to country
-# whats the most common name of a individual animal tracked?
-# Plot creativity vs. name popularity
-
-
-# https://github.com/sigpwned/popular-names-by-country-dataset
-
-
-
 # ▶︎ Required Libraries
 library(dplyr)
 library(tidyr)

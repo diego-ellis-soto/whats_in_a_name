@@ -37,3 +37,22 @@ login <- movebankLogin(username = "XXX", password = "XXX")
 ![Animals with names](outdir/prop_human_named.png)
 
 ![Studies with public data](outdir/Public_movement_data.png)
+
+# Future work/next steps::
+Probability of names by country: https://github.com/Kyubyong/name2nat
+Names by country dataset https://github.com/sigpwned/popular-names-by-country-dataset
+Undergraduate work:
+Site of baby names python:
+Accept terms and agreements
+Taxonomy
+Look at author name responsible and country of origin
+Taxonomic Done
+Accept Manually all those studies
+Add matrix of names and their countries from python global
+Do some plots of language to language based on country ->
+Global map of individuals per grid cell of this movebank study
+Add Elton Traits
+global plot of country to country
+gloal plot of GDP from country to country
+whats the most common name of a individual animal tracked?
+Plot creativity vs. name popularity
