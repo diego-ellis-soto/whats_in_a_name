@@ -22,6 +22,15 @@ required_pkgs <- c(
   "rnaturalearth", "rnaturalearthdata", "babynames",
   "stringdist", "ggplot2", "wordcloud", "tidyr", "rgbif", "ggrepel"
 )
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(sf)
+library(stringr)
+library(rgbif)
+
+
 install.packages(setdiff(required_pkgs, installed.packages()[,1]), repos = "https://cran.rstudio.com")
 lapply(required_pkgs, library, character.only = TRUE)
 
@@ -185,3 +194,107 @@ p4 <- ggplot() +
   )
 
 ggsave("outdir/Public_movement_data.png", p4, width=6, height=4)
+
+
+
+# Next steps:
+
+
+# Undergraduate work: 
+# Site of baby names python:
+# Accept terms and agreements
+# Taxonomy
+# Look at author name responsible and country of origin
+# 
+# Taxonomic Done
+# Accept Manually all those studies
+# Add matrix of names and their countries from python global
+# 
+# Do some plots of language to language based on country -> 
+# Global map of individuals per grid cell of this movebank study
+# Add Elton Traits
+# global plot of country to country
+# gloal plot of GDP from country to country
+# whats the most common name of a individual animal tracked?
+# Plot creativity vs. name popularity
+
+
+# https://github.com/sigpwned/popular-names-by-country-dataset
+
+
+
+# ▶︎ Required Libraries
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(sf)
+library(stringr)
+library(rgbif)
+
+# ▶︎ Extract latitudes and taxonomic info
+df <- st_drop_geometry(downloadable_studies_sf) %>%
+  mutate(lat = sf::st_coordinates(downloadable_studies_sf)[,2])
+
+# ▶︎ Separate multiple species from taxon_ids
+tax_df <- df %>%
+  select(id, lat, taxon_ids, number_of_individuals) %>%
+  filter(!is.na(taxon_ids)) %>%
+  mutate(taxon_ids = strsplit(taxon_ids, ",")) %>%
+  unnest(taxon_ids) %>%
+  mutate(taxon_ids = str_trim(taxon_ids))
+
+# ▶︎ Add taxonomic lookup (get family using rgbif)
+get_family <- function(sci_name) {
+  res <- tryCatch(name_backbone(name = sci_name), error = function(e) NULL)
+  if (is.null(res) || !"family" %in% names(res)) return(NA_character_)
+  return(res$family)
+}
+
+# Lookup family (optional - can skip if only doing species)
+tax_df <- tax_df %>%
+  distinct(taxon_ids) %>%
+  mutate(family = purrr::map_chr(taxon_ids, get_family)) %>%
+  right_join(tax_df, by = "taxon_ids")
+
+# ▶︎ Bin by latitude
+tax_df <- tax_df %>%
+  mutate(lat_bin = round(lat, 0))  # Use 1-degree bins
+
+# ▶︎ Count unique species per latitude
+species_lat <- tax_df %>%
+  group_by(lat_bin) %>%
+  summarise(n_species = n_distinct(taxon_ids))
+
+# ▶︎ Count unique families per latitude
+family_lat <- tax_df %>%
+  filter(!is.na(family)) %>%
+  group_by(lat_bin) %>%
+  summarise(n_families = n_distinct(family))
+
+# ▶︎ Sum individuals per latitude
+individuals_lat <- df %>%
+  mutate(lat_bin = round(lat, 0)) %>%
+  group_by(lat_bin) %>%
+  summarise(n_individuals = sum(as.numeric(number_of_individuals), na.rm = TRUE))
+
+# ▶︎ Count studies per latitude
+studies_lat <- df %>%
+  mutate(lat_bin = round(lat, 0)) %>%
+  group_by(lat_bin) %>%
+  summarise(n_studies = n_distinct(id))
+
+# ▶︎ Plotting function
+plot_latitude <- function(data, yvar, title, ylab, filename) {
+  p <- ggplot(data, aes(x = !!sym(yvar), y = lat_bin)) +
+    geom_col(fill = "steelblue") +
+    labs(title = title, x = ylab, y = "Latitude") +
+    theme_minimal()
+  print(p)
+  ggsave(paste0("outdir/", filename, ".png"), p, width = 6, height = 5)
+}
+
+# ▶︎ Generate and save all plots
+plot_latitude(species_lat, "n_species", "Species Richness Across Latitude", "Number of Species", "species_by_lat")
+plot_latitude(family_lat, "n_families", "Family Richness Across Latitude", "Number of Families", "families_by_lat")
+plot_latitude(individuals_lat, "n_individuals", "Tracked Individuals Across Latitude", "Number of Individuals", "individuals_by_lat")
+plot_latitude(studies_lat, "n_studies", "Study Counts Across Latitude", "Number of Studies", "studies_by_lat")
