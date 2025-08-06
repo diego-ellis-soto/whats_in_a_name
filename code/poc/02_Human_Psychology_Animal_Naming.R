@@ -56,8 +56,8 @@ get_animal_metadata_from_study <- function(study, login) {
   df <- getMovebankData(study = study, login = login, removeDuplicatedTimestamps = TRUE)
   id_data <- as_tibble(df@idData)
 
-  coords <- as.data.frame(df) %>%
-    select(tag_local_identifier, location_lat, location_long) %>%
+  coords <- as_tibble(df) %>%
+    dplyr::select(tag_local_identifier, location_lat, location_long) %>%
     distinct()
   coords$country <- get_country_from_coords(coords$location_lat, coords$location_long)
 
@@ -69,7 +69,7 @@ get_animal_metadata_from_study <- function(study, login) {
   negative_words <- c("storm","rage","pain","ghost","death","shadow")
 
   meta <- id_data %>%
-    select(local_identifier, individual_id, sex, taxon_canonical_name) %>%
+    dplyr::select(local_identifier, individual_id, sex, taxon_canonical_name) %>%
     left_join(country_per_animal, by = c("local_identifier" = "tag_local_identifier")) %>%
     mutate(
       study_id = study_id,
@@ -210,7 +210,7 @@ df <- st_drop_geometry(downloadable_studies_sf) %>%
 
 # ▶︎ Separate multiple species from taxon_ids
 tax_df <- df %>%
-  select(id, lat, taxon_ids, number_of_individuals) %>%
+  dplyr::select(id, lat, taxon_ids, number_of_individuals) %>%
   filter(!is.na(taxon_ids)) %>%
   mutate(taxon_ids = strsplit(taxon_ids, ",")) %>%
   unnest(taxon_ids) %>%
@@ -255,6 +255,15 @@ studies_lat <- df %>%
   mutate(lat_bin = round(lat, 0)) %>%
   group_by(lat_bin) %>%
   summarise(n_studies = n_distinct(id))
+
+total_species     <- n_distinct(tax_df$taxon_ids)
+total_studies     <- n_distinct(all_studies$id)
+total_individuals <- sum(as.numeric(df$number_of_individuals), na.rm = TRUE)
+
+cat("Total species with public data: ", total_species, "\n")
+cat("Total studies with public data: ", total_studies, "\n")
+cat("Total tracked individuals: ", total_individuals, "\n")
+
 
 # ▶︎ Plotting function
 

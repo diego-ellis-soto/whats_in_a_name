@@ -1,6 +1,6 @@
 # 🧠 Human Psychology of Conservation: Naming Patterns in Animal Tracking
 # By Diego Ellis Soto, diego.ellissoto@berkeley.edu, University of California Berkeley
-
+# Im updateing something
 ## ✨ Overview
 
 This project explores the **intersection of human culture, naming practices, and biodiversity conservation**, particularly in the context of animal tracking data from Movebank. It investigates how naming conventions of tracked animals may reflect **human psychological and cultural patterns**, and how these patterns vary across **taxonomic groups**, **countries**, and **latitudinal gradients**.
